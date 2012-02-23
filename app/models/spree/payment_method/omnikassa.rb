@@ -1,4 +1,3 @@
-puts "loaded"
 module Spree
   class PaymentMethod::Omnikassa < PaymentMethod
     def actions
