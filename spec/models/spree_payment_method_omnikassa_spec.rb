@@ -26,4 +26,9 @@ describe Spree::PaymentMethod::Omnikassa do
       @omnikassa.capture(@payment)
     end
   end
+  describe "#process" do
+    it 'should be registered by setting source_required? to true' do
+      @omnikassa.source_required?.should be_true
+    end
+  end
 end
