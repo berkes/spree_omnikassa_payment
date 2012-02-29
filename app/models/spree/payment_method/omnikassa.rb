@@ -16,7 +16,11 @@ module Spree
     end
 
     def url
-      "http://example.com"
+      if self.environment == "production"
+        "https://payment-webinit.omnikassa.rabobank.nl"
+      else
+        "https://payment-webinit.simu.omnikassa.rabobank.nl/paymentServlet"
+      end
     end
   end
 end

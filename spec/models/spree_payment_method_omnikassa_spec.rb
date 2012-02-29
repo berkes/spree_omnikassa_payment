@@ -31,4 +31,15 @@ describe Spree::PaymentMethod::Omnikassa do
       @omnikassa.source_required?.should be_true
     end
   end
+
+  describe "#url" do
+    it 'should return the staging url for payment gateways not in production' do
+      @omnikassa.environment = "development"
+      @omnikassa.url.should == "https://payment-webinit.simu.omnikassa.rabobank.nl/paymentServlet"
+    end
+    it 'should return the production url for payment gateways in production' do
+      @omnikassa.environment = "production"
+      @omnikassa.url.should == "https://payment-webinit.omnikassa.rabobank.nl"
+    end
+  end
 end
