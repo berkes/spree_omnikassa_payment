@@ -14,5 +14,9 @@ module Spree
       payment.complete
       true
     end
+
+    def url
+      "http://example.com"
+    end
   end
 end
