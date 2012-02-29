@@ -1,5 +1,8 @@
 module Spree
   class PaymentMethod::Omnikassa < PaymentMethod
+    preference :merchant_id, :string
+    preference :key_version, :integer
+
     def actions
       %w{capture}
     end

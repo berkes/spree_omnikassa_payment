@@ -5,6 +5,18 @@ describe Spree::PaymentMethod::Omnikassa do
     @payment = mock_model(Spree::Payment, :amount => 100)
     @omnikassa = Spree::PaymentMethod::Omnikassa.new
   end
+
+  describe "preferences" do
+    [
+      :merchant_id,
+      :key_version
+    ].each do |pref|
+      it "should have the preference: #{pref}" do
+        @omnikassa.should have_preference pref
+      end
+    end #each
+  end
+
   describe "#actions" do
     it 'should have "capture" action' do
       @omnikassa.actions.include?("capture").should be_true
