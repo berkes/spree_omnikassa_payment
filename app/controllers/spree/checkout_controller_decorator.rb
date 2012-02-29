@@ -4,7 +4,7 @@ Spree::CheckoutController.class_eval do
       payment = Spree::Payment.new
       payment.amount = @order.total
 
-      payment.payment_method = Spree::PaymentMethod.select{ |pm| pm.name.downcase =~ /omni/}.first
+      payment.payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method
       @order.payments << payment
       payment.started_processing
       render "omnikassa_edit"

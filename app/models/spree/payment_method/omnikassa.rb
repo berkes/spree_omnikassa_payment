@@ -22,5 +22,10 @@ module Spree
         "https://payment-webinit.simu.omnikassa.rabobank.nl/paymentServlet"
       end
     end
+
+    def self.fetch_payment_method
+      # @TODO fail and report user when no paymentmethod with name "omni" is provided.
+      Spree::PaymentMethod.select{ |pm| pm.name.downcase =~ /omni/}.first
+    end
   end
 end
