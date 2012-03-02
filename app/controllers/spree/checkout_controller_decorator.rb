@@ -7,6 +7,8 @@ Spree::CheckoutController.class_eval do
       payment.payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method
       @order.payments << payment
       payment.started_processing
+
+      @payment_request = Spree::OmnikassaPaymentRequest.new(payment.amount, @order.id)
       render "omnikassa_edit"
     end
   end
