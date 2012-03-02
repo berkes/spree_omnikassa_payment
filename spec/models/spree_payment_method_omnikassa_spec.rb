@@ -9,7 +9,8 @@ describe Spree::PaymentMethod::Omnikassa do
   describe "preferences" do
     [
       :merchant_id,
-      :key_version
+      :key_version,
+      :secret_key
     ].each do |pref|
       it "should have the preference: #{pref}" do
         @omnikassa.should have_preference pref

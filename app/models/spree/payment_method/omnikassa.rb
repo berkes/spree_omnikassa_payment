@@ -1,7 +1,8 @@
 module Spree
   class PaymentMethod::Omnikassa < PaymentMethod
-    preference :merchant_id, :string
-    preference :key_version, :integer
+    preference :merchant_id, :string,  :default => "002020000000001"
+    preference :key_version, :integer, :default => 1
+    preference :secret_key,  :string,  :default => "002020000000001_KEY1"
 
     def actions
       %w{capture}
