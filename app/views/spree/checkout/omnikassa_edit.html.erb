@@ -11,11 +11,14 @@
 
   <div class="row" data-hook="checkout_content">
     <div class="columns <%= if @order.state != 'confirm' then 'alpha twelve' else 'alpha omega sixteen' end %>" data-hook="checkout_form_wrapper">
-      <%= form_for @order, :url => @order.payment.payment_method.url, :html => { :id => "checkout_form_#{@order.state}" } do |form| %>
+        <%= form_tag(@order.payment.payment_method.url, :method => :post) do %>
         <fieldset id="payment" data-hook>
           <legend><%= t(:payment_information) %></legend>
           <div data-hook="checkout_payment_step">
             RABOBANK OMNIKASSA FTW!
+            <%= hidden_field_tag "Data", @payment_request.data %>
+            <%= hidden_field_tag "InterfaceVersion", @payment_request.interface_version %>
+            <%= hidden_field_tag "Seal", @payment_request.seal %>
             <br style="clear:both;" />
             <div data-hook="coupon_code_field" data-hook></div>
           </div>
