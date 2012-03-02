@@ -169,6 +169,7 @@ GEM
       ffi (~> 1.0.9)
       json_pure
       rubyzip
+    spork (0.9.0)
     spree_auth (1.0.0)
       cancan (= 1.6.7)
       devise (= 1.4.8)
@@ -214,6 +215,7 @@ DEPENDENCIES
   ffaker
   rspec-rails (~> 2.7)
   ruby-debug
+  spork
   spree_auth
   spree_omnikassa!
   sqlite3
