@@ -4,7 +4,7 @@ Spree::CheckoutController.class_eval do
       payment = Spree::Payment.new
       payment.amount = @order.total
 
-      payment.payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method
+      payment.payment_method_id = Spree::PaymentMethod::Omnikassa.fetch_payment_method.id
       @order.payments << payment
       payment.started_processing
 
