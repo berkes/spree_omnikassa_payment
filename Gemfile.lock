@@ -7,6 +7,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    ZenTest (4.6.2)
     actionmailer (3.1.3)
       actionpack (= 3.1.3)
       mail (~> 2.3.0)
@@ -48,6 +49,13 @@ GEM
       multi_json (~> 1.0)
     acts_as_list (0.1.4)
     arel (2.2.1)
+    autotest (4.4.6)
+      ZenTest (>= 4.4.1)
+    autotest-notification (2.3.4)
+      autotest-standalone (~> 4.5)
+    autotest-rails (4.1.2)
+      ZenTest (~> 4.5)
+    autotest-standalone (4.5.9)
     bcrypt-ruby (3.0.1)
     braintree (2.13.4)
       builder (>= 2.0.0)
@@ -210,6 +218,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  autotest
+  autotest-notification
+  autotest-rails
   capybara (= 1.0.1)
   factory_girl
   ffaker

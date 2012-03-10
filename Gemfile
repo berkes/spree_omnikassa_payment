@@ -2,6 +2,9 @@ source 'http://rubygems.org'
 
 group :test do
   gem 'spork'
+  gem 'autotest'
+  gem 'autotest-rails'
+  gem 'autotest-notification'
   gem 'spree_auth'
   gem 'ffaker'
 end
