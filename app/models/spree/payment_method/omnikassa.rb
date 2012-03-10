@@ -29,7 +29,7 @@ module Spree
 
     def self.fetch_payment_method
       name = "Omnikassa"
-      pm = Spree::PaymentMethod.find(:first, :conditions => [ "lower(name) = ?", name.downcase ])
+      Spree::PaymentMethod.find(:first, :conditions => [ "lower(name) = ?", name.downcase ]) || raise(ActiveRecord::RecordNotFound)
     end
   end
 end

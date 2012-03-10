@@ -55,15 +55,18 @@ describe Spree::PaymentMethod::Omnikassa do
       @omnikassa.url.should == "https://payment-webinit.omnikassa.rabobank.nl"
     end
   end
-  
+
   describe "self#fetch_payment_method" do
     it 'should find a payment_method' do
-      pending "Find out how to mock and stub a call to Spree::PaymentMethod.select"
-      @omnikassa_anon.fetch_payment_method.should be_a_kind_of(Spree::PaymentMethod)
+      Spree::PaymentMethod.new(:name => "Omnikassa").save
+      @omnikassa.class.fetch_payment_method.should be_a_kind_of(Spree::PaymentMethod)
     end
-    it 'should only return a payment_method with "omni" in the name' do
-      pending "Find out how to mock and stub a call to Spree::PaymentMethod.select"
-      @omnikassa_anon.fetch_payment_method.name.should =~ /omni/
+    it 'should only return a payment_method with "omnikassa" in the name' do
+      Spree::PaymentMethod.new(:name => "Omnikassa").save
+      @omnikassa.class.fetch_payment_method.name.downcase.should =~ /omnikassa/
+    end
+    it 'should raise a RecordNotFound when no paymentmethod with name Omnikassa is found' do
+      expect{ @omnikassa.class.fetch_payment_method }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end
