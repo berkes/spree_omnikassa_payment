@@ -60,6 +60,50 @@ describe Spree::OmnikassaPaymentRequest do
       @request.seal.should eq Digest::SHA2.hexdigest(@request.data + @secret_key)
     end
   end
+
+  describe "#payment" do
+    it 'should try to find a Spree::Payment' do
+      pending "@TODO somehow cannot figure out how to stub the finder so it returns something."
+      Spree::Payment.any_instance.stub(:find).and_return(Spree::Payment.new)
+      Spree::Payment.any_instance.should_receive(:find)
+    end
+    it 'should raise RecordNotFound if no payment is found' do
+      expect { @request.payment }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
+  describe "#response_level" do
+    response_codes =
+      {
+        :success => [00],
+        :pending => [
+          90,
+          99],
+        :cancelled => [
+          14, #invalid CSC or CVV
+          17, #cancelled by user
+          75], #number attempts to enter cardnumer exceeded.
+        :failed => [
+          02,
+          03,
+          05,
+          12,
+          30,
+          34,
+          40,
+          63,
+          94,
+          97]
+      }
+    response_codes.each do |state, codes|
+      codes.each do |code|
+        it "should return #{state} for #{code}" do
+          @request = Spree::OmnikassaPaymentRequest.new(@amount, @order_id, code)
+          @request.response_level.should == state
+        end
+      end
+    end
+  end
 end
 
 def name_value_pair_re(name, value)

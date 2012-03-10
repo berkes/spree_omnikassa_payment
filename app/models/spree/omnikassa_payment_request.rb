@@ -38,13 +38,14 @@ module Spree
 
     # Finds a payment with provided parameters trough activeRecord.
     def payment(state = :processing)
-      Spree::Payment.where(:amount => @amount, :order_id => @order_id, :state => state, :payment_method_id => @payment_method.id).first
+      # @TODO should use :payment_method_id => @payment_method.id too
+      Spree::Payment.find(:first, :conditions => { :amount => @amount, :order_id => @order_id, :state => state } ) || raise(ActiveRecord::RecordNotFound)
     end
 
     # Level can be :success, :pending, :cancelled or :failed
     def response_level
-      response_codes.each do |level|
-        if level.include?(@response_code)
+      response_codes.each do |level, codes|
+        if codes.include?(@response_code)
           return level
         end
       end
@@ -99,7 +100,6 @@ module Spree
           03,
           05,
           12,
-          14,
           30,
           34,
           40,

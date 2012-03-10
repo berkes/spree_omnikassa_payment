@@ -28,8 +28,8 @@ module Spree
     end
 
     def self.fetch_payment_method
-      # @TODO fail and report user when no paymentmethod with name "omni" is provided.
-      Spree::PaymentMethod.select{ |pm| pm.name.downcase =~ /omni/}.first
+      name = "Omnikassa"
+      pm = Spree::PaymentMethod.find(:first, :conditions => [ "lower(name) = ?", name.downcase ])
     end
   end
 end
