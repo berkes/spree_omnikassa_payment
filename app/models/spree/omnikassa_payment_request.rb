@@ -8,6 +8,7 @@ module Spree
   # It requires amount and order_id to be passed in
   # on creation.
   class OmnikassaPaymentRequest
+    include Spree::Core::Engine.routes.url_helpers
     attr_accessor :amount, :order_id
 
     def initialize(amount, order_id, response_code = nil)
@@ -74,7 +75,7 @@ module Spree
     end
 
     def normal_return_url
-      "http://example.com" # @TODO implement controller callback first!
+      url_for(:controller => 'spree/omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url)
     end
 
     def transaction_reference

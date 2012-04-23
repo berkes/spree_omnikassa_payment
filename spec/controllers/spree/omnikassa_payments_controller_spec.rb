@@ -2,7 +2,10 @@ require "spec_helper"
 
 describe Spree::OmnikassaPaymentsController do
 
-  before(:each) { @routes = Spree::Core::Engine.routes }
+  before(:each) do
+    @routes = Spree::Core::Engine.routes
+    Spree::PaymentMethod::Omnikassa.stub(:fetch_payment_method).and_return(Spree::PaymentMethod.new(:name => "Omnikassa"))
+  end
 
   response_args = [
    :amount,
@@ -53,7 +56,6 @@ describe Spree::OmnikassaPaymentsController do
         @payment = Spree::Payment.new(:amount => @args["amount"], :order_id => @args["transactionReference"], :payment_method_id => 200123)
 
         Spree::OmnikassaPaymentRequest.any_instance.stub(:payment).and_return(@payment)
-        Spree::PaymentMethod.any_instance.stub(:fetch_payment_method).and_return(Spree::PaymentMethod.new(:name => "Omnikassa"))
       end
 
       [ :amount,
@@ -107,7 +109,6 @@ describe Spree::OmnikassaPaymentsController do
       @payment = Spree::Payment.new(:amount => @args["amount"], :order_id => @args["transactionReference"], :payment_method_id => 200123)
 
       Spree::OmnikassaPaymentRequest.any_instance.stub(:payment).and_return(@payment)
-      Spree::PaymentMethod.any_instance.stub(:fetch_payment_method).and_return(Spree::PaymentMethod.new(:name => "Omnikassa"))
     end
     it 'should handle a post' do
       post :reply

@@ -1,6 +1,8 @@
 module Spree
   class OmnikassaPaymentsController < ApplicationController
     def homecoming
+      # @TODO: postback is actually Parameters: {"InterfaceVersion"=>"HP_1.0", "Data"=>"amount=1022|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=null|transactionDateTime=2012-03-10T17:01:03+01:00|transactionReference=1069267047|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00", "Encode"=>"", "Seal"=>"76623e59dce80c79264d3445b12fa8d6028a6120043347e5a24d879001b35121"}
+
       [:amount, :transactionReference, :responseCode].each do |required|
         if !params.include?(required) || params[required].nil?
           flash[:error] = "Invalid request"
