@@ -11,11 +11,15 @@ module Spree
     include Spree::Core::Engine.routes.url_helpers
     attr_accessor :amount, :order_id
 
-    def initialize(amount, order_id, response_code = nil)
-      @amount = amount
-      @order_id = order_id
-      @response_code = response_code
+    def initialize(amount, transaction_reference, response_code = nil)
       @payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method
+      if transaction_reference.to_s.include? merchant_id
+        @amount = amount
+        @order_id = transaction_reference.to_s.match(merchant_id).post_match
+        @response_code = response_code
+      else
+        raise "transactionReference cannot be parsed"
+      end
     end
 
     # Generates datastring according to omnikassa
@@ -54,6 +58,11 @@ module Spree
       nil
     end
 
+    def self.build_transaction_reference order_id
+      @payment_method ||= Spree::PaymentMethod::Omnikassa.fetch_payment_method
+      @payment_method.preferred_merchant_id + order_id.to_s
+    end
+
     private
     # @TODO implement size and format validation acc to §9.2.
 
@@ -79,7 +88,7 @@ module Spree
     end
 
     def transaction_reference
-      @order_id
+      Spree::OmnikassaPaymentRequest.build_transaction_reference order_id
     end
 
     def key_version

@@ -3,7 +3,7 @@ require "spec_helper"
 describe Spree::OmnikassaPaymentRequest do
   before :each do
     @amount = BigDecimal.new("12.99")
-    @order_id = 123
+    @order_id = "123"
 
     @merchant_id = "123abc"
     @key_version = "1"
@@ -15,12 +15,19 @@ describe Spree::OmnikassaPaymentRequest do
     @pm.preferred_key_version = @key_version
     @pm.preferred_secret_key = @secret_key
 
-    @request = Spree::OmnikassaPaymentRequest.new(@amount, @order_id)
+    @transaction_reference = @merchant_id + @order_id.to_s
+
+    @request = Spree::OmnikassaPaymentRequest.new(@amount, @transaction_reference)
   end
   describe '#initialize' do
-    it 'should require amount and order_id' do
-      Spree::OmnikassaPaymentRequest.should_receive(:new).with(@amount, @order_id).and_return(Spree::OmnikassaPaymentRequest)
-      Spree::OmnikassaPaymentRequest.new(@amount, @order_id)
+    it 'should require amount and transaction_reference' do
+      Spree::OmnikassaPaymentRequest.should_receive(:new).with(@amount, @transaction_reference).and_return(Spree::OmnikassaPaymentRequest)
+      Spree::OmnikassaPaymentRequest.new(@amount, @transaction_reference)
+    end
+    it 'should raise an error if the merchant-id is not part of the transaction_reference' do
+      expect {
+        Spree::OmnikassaPaymentRequest.new(@amount, "123")
+      }.to raise_error(RuntimeError, "transactionReference cannot be parsed")
     end
   end
 
@@ -46,8 +53,8 @@ describe Spree::OmnikassaPaymentRequest do
     it 'should return amount as price in cents' do
       @request.data.should =~ name_value_pair_re('amount', '1299')
     end
-    it 'should include a numeric transactionReference' do
-      @request.data.should =~ name_value_pair_re('transactionReference', '*')
+    it 'should include a transactionReference' do
+      @request.data.should =~ name_value_pair_re('transactionReference', @merchant_id + '\d+')
     end
     it 'should include a numeric keyVersion' do
       @request.data.should =~ name_value_pair_re('keyVersion', @key_version)
@@ -103,10 +110,16 @@ describe Spree::OmnikassaPaymentRequest do
     response_codes.each do |state, codes|
       codes.each do |code|
         it "should return #{state} for #{code}" do
-          @request = Spree::OmnikassaPaymentRequest.new(@amount, @order_id, code)
+          @request = Spree::OmnikassaPaymentRequest.new(@amount, @transaction_reference, code)
           @request.response_level.should == state
         end
       end
+    end
+  end
+
+  describe "#build_transaction_reference" do
+    it 'should take order_id and append the preferred_merchant_id to it.' do
+      Spree::OmnikassaPaymentRequest.build_transaction_reference(@order_id).should eq @transaction_reference
     end
   end
 end
