@@ -50,6 +50,11 @@ describe Spree::OmnikassaPaymentRequest do
       # url_for(:controller => 'omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url))
       @request.data.should =~ name_value_pair_re('normalReturnUrl', "http://#{Spree::Config.preferred_site_url}/omnikassa_payments/homecoming")
     end
+    it 'should have the full url to "OmnikassaPaymentsController#reply", with "preferred_site_url" as base, as normalReturnUrl' do
+      # @TODO find out how to include url_helpers here.
+      # url_for(:controller => 'omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url))
+      @request.data.should =~ name_value_pair_re('automaticResponseUrl', "http://#{Spree::Config.preferred_site_url}/omnikassa_payments/reply")
+    end
     it 'should return amount as price in cents' do
       @request.data.should =~ name_value_pair_re('amount', '1299')
     end
@@ -73,16 +78,6 @@ describe Spree::OmnikassaPaymentRequest do
     end
   end
 
-  describe "#payment" do
-    it 'should try to find a Spree::Payment' do
-      pending "@TODO somehow cannot figure out how to stub the finder so it returns something."
-      Spree::Payment.any_instance.stub(:find).and_return(Spree::Payment.new)
-      Spree::Payment.any_instance.should_receive(:find)
-    end
-    it 'should raise RecordNotFound if no payment is found' do
-      expect { @request.payment }.to raise_error(ActiveRecord::RecordNotFound)
-    end
-  end
 
   describe "#response_level" do
     response_codes =

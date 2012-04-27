@@ -25,7 +25,7 @@ module Spree
     # Generates datastring according to omnikassa
     # requirements §9. name=value|name=value.
     def data
-      "amount=#{amount}|currencyCode=#{currency_code}|merchantId=#{merchant_id}|normalReturnUrl=#{normal_return_url}|transactionReference=#{transaction_reference}|keyVersion=#{key_version}"
+      "amount=#{amount}|currencyCode=#{currency_code}|merchantId=#{merchant_id}|normalReturnUrl=#{normal_return_url}|automaticResponseUrl=#{automatic_response_url}|transactionReference=#{transaction_reference}|keyVersion=#{key_version}"
     end
 
     def interface_version
@@ -39,23 +39,6 @@ module Spree
     # to_s magic method simply wraps the data string generator.
     def to_s
       data
-    end
-
-    # Finds a payment with provided parameters trough activeRecord.
-    def payment(state = :processing)
-      # @TODO should use :payment_method_id => @payment_method.id too
-      Spree::Payment.find(:first, :conditions => { :amount => @amount, :order_id => @order_id, :state => state } ) || raise(ActiveRecord::RecordNotFound)
-    end
-
-    # Level can be :success, :pending, :cancelled or :failed
-    def response_level
-      response_codes.each do |level, codes|
-        if codes.include?(@response_code)
-          return level
-        end
-      end
-
-      nil
     end
 
     def self.build_transaction_reference order_id
@@ -84,7 +67,15 @@ module Spree
     end
 
     def normal_return_url
-      url_for(:controller => 'spree/omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url)
+      return_url_for_action "homecoming"
+    end
+
+    def automatic_response_url
+      return_url_for_action "reply"
+    end
+
+    def return_url_for_action action
+      url_for(:controller => 'spree/omnikassa_payments', :action => action, :host => Spree::Config.preferred_site_url)
     end
 
     def transaction_reference
@@ -93,30 +84,6 @@ module Spree
 
     def key_version
       @payment_method.preferred_key_version
-    end
-
-    def response_codes
-      {
-        :success => [00],
-        :pending => [
-          90,
-          99],
-        :cancelled => [
-          14, #invalid CSC or CVV
-          17, #cancelled by user
-          75], #number attempts to enter cardnumer exceeded.
-        :failed => [
-          02,
-          03,
-          05,
-          12,
-          30,
-          34,
-          40,
-          63,
-          94,
-          97]
-      }
     end
   end
 end

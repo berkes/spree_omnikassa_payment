@@ -4,18 +4,32 @@ describe Spree::OmnikassaPaymentsController do
 
   before(:each) do
     @routes = Spree::Core::Engine.routes
-    Spree::PaymentMethod::Omnikassa.stub(:fetch_payment_method).and_return(Spree::PaymentMethod.new(:name => "Omnikassa"))
+
+    @merchant_id = "123abc"
+    @key_version = "1"
+    @secret_key = "002020000000001_KEY1"
+
+    @pm = Spree::PaymentMethod::Omnikassa.new(:name => "Omnikassa")
+    @pm.save
+    @pm.preferred_merchant_id = @merchant_id
+    @pm.preferred_key_version = @key_version
+    @pm.preferred_secret_key = @secret_key
+
+    @params = {
+      "InterfaceVersion"  => "HP_1.0",
+      "Data"              => "amount=24900|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=null|transactionDateTime=2012-04-25T14:41:01+02:00|transactionReference=0020200000000011028|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00",
+      "Encode"            => "",
+      "Seal"              => "57262b8054ef2043b90de99954c0cbba213d03ea360103a32514ae154cfcd08d"
+    }
+    @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
+    @payment = Spree::Payment.new(:amount => @payment_response.attributes[:amount], :order_id => @payment_response.attributes[:order_id], :payment_method_id => 200123)
+    @payment.id = 1234
+    Spree::OmnikassaPaymentResponse.any_instance.stub(:payment).and_return(@payment)
   end
 
-  response_args = [
-   :amount,
-   :currencyCode,
-   :merchantId,
-   :transactionReference,
-   :keyVersion,
-   :orderId,
-   :responseCode,
-   :transactionDateTime
+  response_args = %w[
+   Data
+   Seal
   ]
 
   response_codes = {
@@ -41,145 +55,95 @@ describe Spree::OmnikassaPaymentsController do
   }
 
   describe "#homecoming" do
-    it 'should handle a post' do
-      post :homecoming
-      response.should redirect_to root_url
+    it 'should redirect to "/checkout/confirm"' do
+      post :homecoming, @params
+      response.should redirect_to("/checkout/confirm")
     end
 
     describe "fields" do
-      before :each do
-        @args = {
-          :amount => 123,
-          :transactionReference => 100123,
-          :responseCode => 00
-        }
-        @payment = Spree::Payment.new(:amount => @args["amount"], :order_id => @args["transactionReference"], :payment_method_id => 200123)
-
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:payment).and_return(@payment)
-      end
-
-      [ :amount,
-        :transactionReference,
-        :responseCode].each do |requirement|
-          it "should require param #{requirement}" do
-            @args[requirement] = nil
-            post :homecoming, @args
-            flash[:error].downcase.should match /invalid request/
-          end
-      end
-
-      it 'should raise a RecordNotFound error when no payment was found' do
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:payment).and_return(nil)
-        expect { post :homecoming, @args }.to raise_error(ActiveRecord::RecordNotFound)
-      end
-
       describe "success" do
         before :each do
-          Spree::OmnikassaPaymentRequest.any_instance.stub(:response_level).and_return(:success)
+          Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:success)
         end
         it 'should set payment state to pending' do
           @payment.should_receive("pend")
-          post :homecoming, @args
+          post :homecoming, @params
         end
         it 'should set a flash' do
-          post :homecoming, @args
+          post :homecoming, @params
           flash[:info].should_not be_nil
           flash[:info].downcase.should match /success/
         end
-        it 'should redirect to "/checkout/confirm"' do
-          post :homecoming, @args
-          response.should redirect_to("/checkout/confirm")
-        end
+
       end
     end
   end
 
   describe '#reply' do
-    before(:each) do
-      @args = {
-        :amount => 123,
-        :currencyCode => 62,
-        :merchantId => 002020000000001,
-        :transactionReference => 200123,
-        :keyVersion => 1,
-        :orderId => 100123,
-        :responseCode => 00,
-        :transactionDateTime => Date.new
-      }
-      @payment = Spree::Payment.new(:amount => @args["amount"], :order_id => @args["transactionReference"], :payment_method_id => 200123)
-
-      Spree::OmnikassaPaymentRequest.any_instance.stub(:payment).and_return(@payment)
-    end
     it 'should handle a post' do
-      post :reply
+      post :reply, @params
       response.status.should == 200
     end
 
     response_args.each do |field|
       it "should recieve param #{field}" do
-        post :reply, @args
+        post :reply, @params
         controller.params[field].should_not be_nil
       end
     end #describe fields
 
-    describe 'authenticity' do
-      it 'should check for autheticity by ?' do
-        pending "@TODO: waiting for details from bank regarding the authenticity check."
-      end
-    end
-
     describe 'success (00)' do
       before :each do
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:response_level).and_return(:success)
+        Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:success)
       end
 
       it 'should set payment state to completed' do
-        Spree::Payment.any_instance.should_receive(:complete)
-        post :reply, @args
+        @payment.should_receive(:complete)
+        post :reply, @params
       end
       it 'should log the response with level :info' do
-        Rails.logger.should_receive(:info).with( /OmnikassaPaymentRequest response posted: payment: .*; params: .*/ )
-        post :reply, @args
+        Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
+        post :reply, @params
       end
     end
     describe "pending (#{response_codes[:pending].join(',')})" do
       before :each do
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:response_level).and_return(:pending)
+        Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:pending)
       end
 
       it 'should set payment state to pending' do
         Spree::Payment.any_instance.should_receive(:pend)
-        post :reply, @args
+        post :reply, @params
       end
       it 'should log the response with level :info' do
-        Rails.logger.should_receive(:info).with( /OmnikassaPaymentRequest response posted: payment: .*; params: .*/ )
-        post :reply, @args
+        Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
+        post :reply, @params
       end
     end
     describe "cancelled (#{response_codes[:cancelled].join(',')})" do
       before :each do
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:response_level).and_return(:cancelled)
+        Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:cancelled)
       end
       it 'should set payment state to void' do
         Spree::Payment.any_instance.should_receive(:void)
-        post :reply, @args
+        post :reply, @params
       end
       it 'should log the response with level :info' do
-        Rails.logger.should_receive(:info).with( /OmnikassaPaymentRequest response posted: payment: .*; params: .*/ )
-        post :reply, @args
+        Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
+        post :reply, @params
       end
     end
     describe "failed (#{response_codes[:failed].join(',')})" do
       before :each do
-        Spree::OmnikassaPaymentRequest.any_instance.stub(:response_level).and_return(:failed)
+        Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:failed)
       end
       it 'should set payment state to failed' do
         Spree::Payment.any_instance.should_receive(:failure)
-        post :reply, @args
+        post :reply, @params
       end
       it 'should log the response with level :error' do
-        Rails.logger.should_receive(:error).with( /OmnikassaPaymentRequest response posted: payment: .*; params: .*/ )
-        post :reply, @args
+        Rails.logger.should_receive(:error).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
+        post :reply, @params
       end
     end
   end
