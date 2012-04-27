@@ -42,11 +42,21 @@ module Spree
       h = Hash.new
       @data.split("|").each do |s|
         k,v = s.split("=")
-        h[k.underscore.to_sym] = v if valid_attributes.include? k
+        key = k.underscore
+        preparator = "prepare_#{key}"
+        if self.respond_to? preparator, true
+          v = self.send(preparator, v)
+        end
+        h[key.to_sym] = v if valid_attributes.include? k
       end
       h
     end
 
+    # Callback for the to_h.
+    # Converts the amount to BigDecimal and from cents to currency.
+    def prepare_amount amount
+      BigDecimal.new(amount)/100
+    end
     # As per "Tabel 5: Gegevenswoordenboek - beschrijving velden"
     # from Rabo_OmniKassa_Integratiehandleiding_v200.pdf
     def valid_attributes

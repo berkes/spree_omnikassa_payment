@@ -26,7 +26,6 @@ describe Spree::OmnikassaPaymentResponse do
       data = 'amount=123|orderId=456'
       response = Spree::OmnikassaPaymentResponse.new(@seal, data)
       response.attributes.keys.should =~ [:amount, :order_id]
-      response.attributes.values.should =~ ["123", "456"]
     end
     it 'should reject none-whitelisted variables' do
       data = 'foo=bar'
@@ -57,6 +56,13 @@ describe Spree::OmnikassaPaymentResponse do
       seal = ::Digest::SHA2.hexdigest(@data + "abc")
       response = Spree::OmnikassaPaymentResponse.new(seal, @data)
       response.should_not be_valid
+    end
+  end
+
+  describe 'attributes' do
+    it 'should convert price from cents to BigDeclimal fraction' do
+      response = Spree::OmnikassaPaymentResponse.new("123", "amount=2400")
+      response.attributes[:amount].should == BigDecimal.new("24.00")
     end
   end
 
