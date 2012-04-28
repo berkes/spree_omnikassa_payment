@@ -21,9 +21,10 @@ module Spree
     end
 
     # Finds a payment with provided parameters trough activeRecord.
-    def payment(state = :processing)
-      # @TODO should use :payment_method_id => @payment_method.id too
-      Spree::Payment.find(:first, :conditions => { :amount => @attributes[:amount], :order_id => @attributes[:order_id], :state => state } ) || raise(ActiveRecord::RecordNotFound)
+    def payment
+      Spree::Payment.find(:first, :conditions => {
+        :payment_method_id => @payment_method.id,
+        :order_id => @attributes[:order_id]} ) || raise(ActiveRecord::RecordNotFound)
     end
 
     # Level can be :success, :pending, :cancelled or :failed
@@ -90,6 +91,7 @@ module Spree
       %w[
         amount
         transactionReference
+        orderId
         responseCode
       ]
     end

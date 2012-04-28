@@ -14,7 +14,8 @@ describe Spree::OmnikassaPaymentResponse do
     @payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method
     # Parameters: {"InterfaceVersion"=>"HP_1.0", "Data"=>"amount=24900|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=null|transactionDateTime=2012-04-25T14:41:01+02:00|transactionReference=0020200000000011028|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00", "Encode"=>"", "Seal"=>"57262b8054ef2043b90de99954c0cbba213d03ea360103a32514ae154cfcd08d"}
     @seal = "57262b8054ef2043b90de99954c0cbba213d03ea360103a32514ae154cfcd08d"
-    @data = "amount=24900|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=null|transactionDateTime=2012-04-25T14:41:01+02:00|transactionReference=0020200000000011028|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00"
+    @data = "amount=24900|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=123|transactionDateTime=2012-04-25T14:41:01+02:00|transactionReference=0020200000000011028|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00"
+
   end
 
   describe '#initialize' do
@@ -43,6 +44,7 @@ describe Spree::OmnikassaPaymentResponse do
 
     [ :amount,
       :transaction_reference,
+      :order_id,
       :response_code ].each do |requirement|
         it "should be invalid with missing param #{requirement}" do
           @data.gsub!(/#{requirement.to_s.camelize(:lower)}=[^|]*\|?/,"")
@@ -67,20 +69,26 @@ describe Spree::OmnikassaPaymentResponse do
   end
 
   describe "#payment" do
+    before :each do
+      @attrs = { :amount => BigDecimal.new("24900")/100,
+          :order_id => 123,
+          :payment_method_id => 1,
+          :state => "processing" }
+      @payment = mock_model( Spree::Payment, @attrs)
+    end
     it 'should try to find a Spree::Payment' do
-      Spree::Payment.stub(:find).and_return(Spree::Payment.new)
+      Spree::Payment.stub(:find).and_return(@payment)
       Spree::Payment.should_receive(:find)
       Spree::OmnikassaPaymentResponse.new(@seal, @data).payment
     end
-    it 'should find the payment' do
-      payment = mock_model(
-        Spree::Payment,
-        { :amount => BigDecimal.new("12.34"),
-          :order_id => 123456,
-          :payment_method_id => @payment_method.id,
-          :state => "processing" })
-      Spree::Payment.stub(:find).and_return(payment)
-      Spree::OmnikassaPaymentResponse.new(@seal, @data).payment.should == payment
+    it 'should find Spree::Payment by order_id' do
+      stored_payment = Spree::Payment.new(@attrs)
+      stored_payment.stub(:update_order).and_return true
+      stored_payment.save
+
+      data = "orderId=#{stored_payment.order_id}"
+      res = Spree::OmnikassaPaymentResponse.new(@seal, data)
+      res.payment.should == stored_payment
     end
     it 'should raise RecordNotFound if no payment is found' do
       Spree::Payment.stub(:find).and_return(nil)
