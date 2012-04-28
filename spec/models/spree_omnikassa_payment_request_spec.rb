@@ -45,6 +45,9 @@ describe Spree::OmnikassaPaymentRequest do
     it 'should include a normalReturnUrl' do
       @request.data.should =~ name_value_pair_re('normalReturnUrl', 'http:\/\/*')
     end
+    it 'should include a order_id' do
+      @request.data.should =~ name_value_pair_re('orderId', '123')
+    end
     it 'should have the full url to "OmnikassaPaymentsController#homecoming", with "preferred_site_url" as base, as normalReturnUrl' do
       # @TODO find out how to include url_helpers here.
       # url_for(:controller => 'omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url))

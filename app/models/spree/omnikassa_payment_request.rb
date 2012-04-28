@@ -25,7 +25,7 @@ module Spree
     # Generates datastring according to omnikassa
     # requirements §9. name=value|name=value.
     def data
-      "amount=#{amount}|currencyCode=#{currency_code}|merchantId=#{merchant_id}|normalReturnUrl=#{normal_return_url}|automaticResponseUrl=#{automatic_response_url}|transactionReference=#{transaction_reference}|keyVersion=#{key_version}"
+      "amount=#{amount}|orderId=#{order_id}|currencyCode=#{currency_code}|merchantId=#{merchant_id}|normalReturnUrl=#{normal_return_url}|automaticResponseUrl=#{automatic_response_url}|transactionReference=#{transaction_reference}|keyVersion=#{key_version}"
     end
 
     def interface_version
