@@ -27,10 +27,15 @@ module Spree
         :order_id => @attributes[:order_id]} ) || raise(ActiveRecord::RecordNotFound)
     end
 
+    # Finds the order trough ActiveRecord
+    def order
+      Spree::Order.find(@attributes[:order_id].to_i)
+    end
+
     # Level can be :success, :pending, :cancelled or :failed
     def response_level
       response_codes.each do |level, codes|
-        if codes.include?(@response_code)
+        if codes.include?(@attributes[:response_code].to_i)
           return level
         end
       end
@@ -58,6 +63,7 @@ module Spree
     def prepare_amount amount
       BigDecimal.new(amount)/100
     end
+
     # As per "Tabel 5: Gegevenswoordenboek - beschrijving velden"
     # from Rabo_OmniKassa_Integratiehandleiding_v200.pdf
     def valid_attributes

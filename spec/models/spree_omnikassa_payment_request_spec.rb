@@ -81,40 +81,6 @@ describe Spree::OmnikassaPaymentRequest do
     end
   end
 
-
-  describe "#response_level" do
-    response_codes =
-      {
-        :success => [00],
-        :pending => [
-          90,
-          99],
-        :cancelled => [
-          14, #invalid CSC or CVV
-          17, #cancelled by user
-          75], #number attempts to enter cardnumer exceeded.
-        :failed => [
-          02,
-          03,
-          05,
-          12,
-          30,
-          34,
-          40,
-          63,
-          94,
-          97]
-      }
-    response_codes.each do |state, codes|
-      codes.each do |code|
-        it "should return #{state} for #{code}" do
-          @request = Spree::OmnikassaPaymentRequest.new(@amount, @transaction_reference, code)
-          @request.response_level.should == state
-        end
-      end
-    end
-  end
-
   describe "#build_transaction_reference" do
     it 'should take order_id and append the preferred_merchant_id to it.' do
       Spree::OmnikassaPaymentRequest.build_transaction_reference(@order_id).should eq @transaction_reference
