@@ -1,0 +1,11 @@
+/Session.vim
+\#*
+*~
+.#*
+.DS_Store
+.idea
+.project
+tmp
+nbproject
+*.swp
+spec/dummy

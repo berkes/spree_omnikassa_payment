@@ -1,0 +1,36 @@
+<% content_for :head do %>
+  <%= javascript_include_tag states_path %>
+<% end %>
+<div id="checkout" data-hook>
+  <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @order } %>
+
+  <h1 data-hook="checkout_title"><%= t(:checkout) %></h1>
+  <ul id="checkout-steps-<%= @order.state %>" class="breadcrumbs progress-steps">
+    <% checkout_progress_states.each do |state| %>
+      <li class="<%= state.classes.join(" ") %>">
+        <%= state.text %>
+      </li>
+    <% end %>
+  </ul>
+
+  <%= form_tag(@order.payment.payment_method.url, :method => :post) do %>
+  <div class="row" data-hook="checkout_content">
+    <div class="six columns" data-hook="checkout_form_wrapper">
+        <p><%= t(:payment_options) %></p>
+        <div data-hook="checkout_payment_step">
+          <%= image_submit_tag("payment_logos.png") %>
+          <p class="note"><%= t(:payment_opens_new_window) %></p>
+          <%= hidden_field_tag "Data", @payment_request.data %>
+          <%= hidden_field_tag "InterfaceVersion", @payment_request.interface_version %>
+          <%= hidden_field_tag "Seal", @payment_request.seal %>
+          <div data-hook="coupon_code_field" data-hook></div>
+        </div>
+      </div>
+      <div class="six columns">
+        <%= render :partial => 'summary', :locals => { :order => @order } %>
+        <%= submit_tag t(:save_and_continue), :class => 'continue button fullwidth' %>
+      </div>
+    </div>
+  </div>
+  <% end %>
+</div>
