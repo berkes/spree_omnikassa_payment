@@ -19,6 +19,10 @@ module Spree
       true
     end
 
+    def source_required?
+      false
+    end
+
     def url
       if self.environment == "production"
         "https://payment-webinit.omnikassa.rabobank.nl"
