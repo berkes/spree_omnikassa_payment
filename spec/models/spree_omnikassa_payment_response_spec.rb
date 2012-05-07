@@ -95,6 +95,19 @@ describe Spree::OmnikassaPaymentResponse do
       expect { Spree::OmnikassaPaymentResponse.new(@seal, @data).payment }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
+
+  describe "#order" do
+    it 'should try to find a Spree::Order by order_id' do
+      Spree::Order.should_receive(:find).with(123)
+      Spree::OmnikassaPaymentResponse.new(@seal, @data).order
+    end
+    it 'should raise a RecordNotFound of no order is found' do
+      expect {
+        Spree::OmnikassaPaymentResponse.new(@seal, @data).order
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
   describe "#response_level" do
     response_codes =
       {

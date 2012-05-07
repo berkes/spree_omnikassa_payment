@@ -25,6 +25,10 @@ describe Spree::OmnikassaPaymentsController do
     @payment = Spree::Payment.new(:amount => @payment_response.attributes[:amount], :order_id => @payment_response.attributes[:order_id], :payment_method_id => 200123)
     @payment.id = 1234
     Spree::OmnikassaPaymentResponse.any_instance.stub(:payment).and_return(@payment)
+
+    Spree::Order.stub(:create_user)
+    @order = Spree::Order.new
+    Spree::OmnikassaPaymentResponse.any_instance.stub(:order).and_return(@order)
   end
 
   response_args = %w[
@@ -98,12 +102,16 @@ describe Spree::OmnikassaPaymentsController do
       end
 
       it 'should set payment state to completed' do
-        @payment.should_receive(:complete)
+        Spree::Payment.any_instance.should_receive(:complete)
         post :reply, @params
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
         post :reply, @params
+      end
+      it 'should set the order state to completed' do
+        post :reply, @params
+        @payment_response.order.state.should == "completed"
       end
     end
     describe "pending (#{response_codes[:pending].join(',')})" do
@@ -119,6 +127,10 @@ describe Spree::OmnikassaPaymentsController do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
         post :reply, @params
       end
+      it 'should set the order state to payment' do
+        post :reply, @params
+        @payment_response.order.state.should == "payment"
+      end
     end
     describe "cancelled (#{response_codes[:cancelled].join(',')})" do
       before :each do
@@ -132,6 +144,10 @@ describe Spree::OmnikassaPaymentsController do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
         post :reply, @params
       end
+      it 'should set the order state to cancelled' do
+        Spree::Order.any_instance.should_receive(:cancel)
+        post :reply, @params
+      end
     end
     describe "failed (#{response_codes[:failed].join(',')})" do
       before :each do
@@ -143,6 +159,10 @@ describe Spree::OmnikassaPaymentsController do
       end
       it 'should log the response with level :error' do
         Rails.logger.should_receive(:error).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
+        post :reply, @params
+      end
+      it 'should set the order state to cancelled' do
+        Spree::Order.any_instance.should_receive(:cancel)
         post :reply, @params
       end
     end
