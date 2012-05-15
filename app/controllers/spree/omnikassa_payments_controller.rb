@@ -25,7 +25,7 @@ module Spree
         flash[:error] = "Unknown Error occurred"
       end
 
-      redirect_to("/checkout/confirm") and return
+      redirect_to(root_url) and return
     end
 
     def reply

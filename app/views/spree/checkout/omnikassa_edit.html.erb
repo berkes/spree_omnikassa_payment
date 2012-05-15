@@ -19,7 +19,7 @@
         <p><%= t(:payment_options) %></p>
         <div data-hook="checkout_payment_step">
           <%= image_submit_tag("payment_logos.png") %>
-          <p class="note"><%= t(:payment_opens_new_window) %></p>
+          <p class="note"><%= t(:payment_goes_offsite) %></p>
           <%= hidden_field_tag "Data", @payment_request.data %>
           <%= hidden_field_tag "InterfaceVersion", @payment_request.interface_version %>
           <%= hidden_field_tag "Seal", @payment_request.seal %>

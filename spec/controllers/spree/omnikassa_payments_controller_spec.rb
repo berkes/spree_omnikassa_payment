@@ -59,9 +59,9 @@ describe Spree::OmnikassaPaymentsController do
   }
 
   describe "#homecoming" do
-    it 'should redirect to "/checkout/confirm"' do
+    it 'should redirect to root_url' do
       post :homecoming, @params
-      response.should redirect_to("/checkout/confirm")
+      response.should redirect_to(root_url)
     end
 
     describe "fields" do
