@@ -15,8 +15,6 @@ describe Spree::OmnikassaPaymentsController do
     @pm.preferred_key_version = @key_version
     @pm.preferred_secret_key = @secret_key
 
-
-
     Spree::Order.stub(:create_user)
     Spree::Order.any_instance.stub(:payment_required?).and_return(true)
     @order = Spree::Order.new(:email => "foo@example.com", :state => "delivery")
