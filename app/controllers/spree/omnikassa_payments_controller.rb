@@ -37,13 +37,12 @@ module Spree
         case payment_response.response_level
         when :success
           Rails.logger.info message
-          # payment_response.payment.complete
-          # payment_response.order.next!
-          advance_order_status
+          payment_response.payment.complete
+          advance_order_status :complete
         when :pending
           Rails.logger.info message
           payment_response.payment.pend
-          payment_response.order.next
+          advance_order_status :payment
         when :cancelled
           Rails.logger.info message
           payment_response.payment.void
@@ -65,13 +64,10 @@ module Spree
     end
 
     private
-    def advance_order_status
-      until @order.state == "complete"
-        if @order.next!
-          @order.update!
-          # state_callback(:after)
-        end
-      end
+    def advance_order_status upto_state
+      @order.update_attribute(:state, upto_state.to_s)
+      session[:order_id] = nil # Usually checkout_controllers after_complete is called, setting session[:order_id] to nil
+      @order.finalize!
     end
 
     def payment_response_from_params params
