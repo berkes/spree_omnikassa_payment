@@ -40,8 +40,8 @@ describe Spree::PaymentMethod::Omnikassa do
     end
   end
   describe "#process" do
-    it 'should be registered by setting source_required? to true' do
-      @omnikassa.source_required?.should be_true
+    it 'should be registered by setting source_required? to false' do
+      @omnikassa.source_required?.should be_false
     end
   end
 
