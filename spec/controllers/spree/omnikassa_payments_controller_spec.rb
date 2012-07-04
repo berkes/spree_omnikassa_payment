@@ -32,6 +32,9 @@ describe Spree::OmnikassaPaymentsController do
     @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
     @payment = Spree::Payment.new(:amount => @payment_response.attributes[:amount], :order_id => @payment_response.attributes[:order_id], :payment_method_id => 200123)
     @payment.id = 1234
+
+    Spree::Payment.stub(:new).and_return(@payment)
+
     Spree::OmnikassaPaymentResponse.any_instance.stub(:payment).and_return(@payment)
   end
 
@@ -82,8 +85,11 @@ describe Spree::OmnikassaPaymentsController do
           flash[:info].should_not be_nil
           flash[:info].downcase.should match /success/
         end
-
       end
+    end
+
+    it 'should add a payment to order if not exists' do
+      Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
     end
   end
 
@@ -169,6 +175,25 @@ describe Spree::OmnikassaPaymentsController do
         Spree::Order.any_instance.should_receive(:cancel)
         post :reply, @params
       end
+    end
+
+    it 'should add a payment to order if not exists' do
+      Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
+      post :reply, @params
+    end
+  end
+
+  describe "#add_payment_if_not_exists" do
+    it 'should add a payment to the order' do
+      Spree::Payment.should_receive(:create).with(any_args).and_return(@payment)
+      post :homecoming, @params
+    end
+
+    it 'should not add a payment when already added' do
+      @order.payments << mock_model(Spree::Payment).as_null_object
+      @order.save! # @INK: attempt to use an order with one payment associated already.
+      Spree::Payment.should_not_receive(:create)
+      post :homecoming, @params
     end
   end
 end

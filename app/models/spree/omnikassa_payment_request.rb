@@ -9,7 +9,7 @@ module Spree
   # on creation.
   class OmnikassaPaymentRequest
     include Spree::Core::Engine.routes.url_helpers
-    attr_accessor :amount, :order_id
+    attr_accessor :amount, :order_id, :payment_method
 
     def initialize(amount, transaction_reference, response_code = nil)
       @payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method

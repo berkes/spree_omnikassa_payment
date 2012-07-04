@@ -13,7 +13,7 @@
     <% end %>
   </ul>
 
-  <%= form_tag(@order.payment.payment_method.url, :method => :post) do %>
+  <%= form_tag(@payment_request.payment_method.url, :method => :post) do %>
   <div class="row" data-hook="checkout_content">
     <div class="six columns" data-hook="checkout_form_wrapper">
         <p><%= t(:payment_options) %></p>
