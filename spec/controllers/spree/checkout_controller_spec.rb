@@ -21,19 +21,6 @@ describe Spree::CheckoutController do
                            :payments => []).as_null_object }
   before { controller.stub :current_order => order, :current_user => Spree::User.anonymous! }
 
-  it 'should create a new payment' do
-    Spree::Payment.should_receive(:new)
-    get :edit, {:state => 'payment' }
-  end
-  it 'should create a payment with basic information' do
-    Spree::Payment.should_receive(:new).with({
-            :amount => @order.total,
-            :payment_method_id => @pm.id })
-    get :edit, {:state => 'payment' }
-  end
-  it 'should set payment state to started_processing' do
-    Spree::Payment.should_receive(:started_processing!)
-  end
   it 'should show omnikassa form on payment' do
     get :edit, {:state => 'payment'}
     response.should render_template('spree/checkout/omnikassa_edit')
