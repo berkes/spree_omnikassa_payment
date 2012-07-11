@@ -1,7 +1,7 @@
 module Spree
   class OmnikassaPaymentResponse
     attr_accessor :data
-    attr_reader :seal, :attributes
+    attr_reader :seal, :attributes, :payment_method
 
     def initialize seal, data
       @payment_method = Spree::PaymentMethod::Omnikassa.fetch_payment_method

@@ -80,7 +80,7 @@ module Spree
         # leave out the state, we set the state in the controlles switch based on the responsecode
         Spree::Payment.create(
           :order => @order,
-          # :source => @payment_response,
+          :source => @payment_response.payment_method,
           :payment_method => Spree::PaymentMethod::Omnikassa.fetch_payment_method,
           :amount => @order.total,
           :response_code => @payment_response.attributes[:response_code])
