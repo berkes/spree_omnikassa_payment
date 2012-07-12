@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    spree_omnikassa (0.2.2)
+    spree_omnikassa (0.3.0)
       spree_core (~> 1.0.0)
 
 GEM
