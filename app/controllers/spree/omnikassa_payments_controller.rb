@@ -39,11 +39,11 @@ module Spree
         case @payment_response.response_level
         when :success
           Rails.logger.info message
-          @payment_response.payment.complete
+          @payment_response.payment.complete!
           advance_order_status :complete
         when :pending
           Rails.logger.info message
-          @payment_response.payment.pend
+          @payment_response.payment.pend!
           advance_order_status :payment
         when :cancelled
           Rails.logger.info message
@@ -51,16 +51,16 @@ module Spree
           @payment_response.order.cancel
         when :failed
           Rails.logger.error message
-          @payment_response.payment.failure
+          @payment_response.payment.failure!
           @payment_response.order.cancel
         else
           Rails.logger.error message
-          @payment_response.payment.pend
+          @payment_response.payment.pend!
           @payment_response.order.cancel
         end
       else
         Rails.logger.error message
-        @payment_response.payment.pend
+        @payment_response.payment.pend!
       end
       render :text => @payment_response.response_level.to_s
     end
@@ -76,13 +76,12 @@ module Spree
     # Allows both homecoming and reply to create a payment, but avoids having two payments.
     def add_payment_if_not_exists
       if @order.payments.empty?
-        # leave out the state, we set the state in the controlles switch based on the responsecode
         Spree::Payment.create(
           :order => @order,
           :source => @payment_response.payment_method,
           :payment_method => Spree::PaymentMethod::Omnikassa.fetch_payment_method,
           :amount => @order.total,
-          :response_code => @payment_response.attributes[:response_code])
+          :response_code => @payment_response.attributes[:response_code]).started_processing!
       end
     end
 

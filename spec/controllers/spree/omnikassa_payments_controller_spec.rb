@@ -114,8 +114,8 @@ describe Spree::OmnikassaPaymentsController do
       end
 
       it 'should set payment state to completed' do
-        Spree::Payment.any_instance.should_receive(:complete)
         post :reply, @params
+        @payment.state.should == "completed"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -132,8 +132,8 @@ describe Spree::OmnikassaPaymentsController do
       end
 
       it 'should set payment state to pending' do
-        Spree::Payment.any_instance.should_receive(:pend)
         post :reply, @params
+        @payment.state == "pending"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -166,8 +166,8 @@ describe Spree::OmnikassaPaymentsController do
         Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:failed)
       end
       it 'should set payment state to failed' do
-        Spree::Payment.any_instance.should_receive(:failure)
         post :reply, @params
+        @payment.state == "failed"
       end
       it 'should log the response with level :error' do
         Rails.logger.should_receive(:error).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
