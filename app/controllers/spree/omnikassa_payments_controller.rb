@@ -47,7 +47,7 @@ module Spree
           advance_order_status :payment
         when :cancelled
           Rails.logger.info message
-          @payment_response.payment.void
+          @payment_response.payment.failure!
           @payment_response.order.cancel
         when :failed
           Rails.logger.error message

@@ -148,9 +148,9 @@ describe Spree::OmnikassaPaymentsController do
       before :each do
         Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:cancelled)
       end
-      it 'should set payment state to void' do
-        Spree::Payment.any_instance.should_receive(:void)
+      it 'should set payment state to failed' do
         post :reply, @params
+        @payment.state == "failed"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
