@@ -30,7 +30,11 @@ describe Spree::OmnikassaPaymentsController do
       "Seal"              => @seal
     }
     @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
-    @payment = Spree::Payment.new(:amount => @payment_response.attributes[:amount], :order_id => @payment_response.attributes[:order_id], :payment_method_id => 200123)
+    @payment = Spree::Payment.new(
+      :amount => @payment_response.attributes[:amount], 
+      :order_id => @payment_response.attributes[:order_id], 
+      :payment_method_id => 200123
+    )
     @payment.id = 1234
 
     Spree::Payment.stub(:new).and_return(@payment)
@@ -176,6 +180,7 @@ describe Spree::OmnikassaPaymentsController do
     end
 
     it 'should add a payment to order if not exists' do
+      @payment.started_processing!
       Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
       post :reply, @params
     end
