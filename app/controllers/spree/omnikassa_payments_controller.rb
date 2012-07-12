@@ -27,6 +27,8 @@ module Spree
         flash[:error] = "Unknown Error occurred"
       end
 
+      session[:order_id] = nil
+
       redirect_to(root_url) and return
     end
 
