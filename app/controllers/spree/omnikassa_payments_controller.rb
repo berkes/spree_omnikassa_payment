@@ -15,10 +15,8 @@ module Spree
       case @payment_response.response_level
       when :success
         flash[:info] = "Success!"
-        @payment_response.payment.pend
       when :pending
         flash[:info] = "Still pending. You will recieve a message"
-        @payment_response.payment.pend
       when :cancelled
         flash[:error] = "Order cancelled"
       when :failed

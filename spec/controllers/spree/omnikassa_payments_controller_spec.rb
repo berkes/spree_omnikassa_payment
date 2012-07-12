@@ -76,10 +76,6 @@ describe Spree::OmnikassaPaymentsController do
         before :each do
           Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:success)
         end
-        it 'should set payment state to pending' do
-          @payment.should_receive("pend")
-          post :homecoming, @params
-        end
         it 'should set a flash' do
           post :homecoming, @params
           flash[:info].should_not be_nil
