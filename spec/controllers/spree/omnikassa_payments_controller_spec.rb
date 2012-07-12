@@ -84,11 +84,6 @@ describe Spree::OmnikassaPaymentsController do
       end
     end
 
-    it 'should add a payment to order if not exists' do
-      Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
-      post :homecoming, @params
-    end
-
     it 'should remove order_id from session' do
       session[:order_id] = 123
       post :homecoming, @params

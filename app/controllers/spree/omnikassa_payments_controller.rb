@@ -5,7 +5,6 @@ module Spree
     def homecoming
       @payment_response = payment_response_from_params(params)
       @order = @payment_response.order
-      add_payment_if_not_exists
 
       if not @payment_response.valid?
         flash[:error] = "Invalid request"
