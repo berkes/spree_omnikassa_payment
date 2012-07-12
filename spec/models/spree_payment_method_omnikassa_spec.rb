@@ -52,7 +52,7 @@ describe Spree::PaymentMethod::Omnikassa do
     end
     it 'should return the production url for payment gateways in production' do
       @omnikassa.environment = "production"
-      @omnikassa.url.should == "https://payment-webinit.omnikassa.rabobank.nl"
+      @omnikassa.url.should == "https://payment-webinit.omnikassa.rabobank.nl/paymentServlet"
     end
   end
 

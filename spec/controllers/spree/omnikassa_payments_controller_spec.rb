@@ -30,7 +30,11 @@ describe Spree::OmnikassaPaymentsController do
       "Seal"              => @seal
     }
     @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
-    @payment = Spree::Payment.new(:amount => @payment_response.attributes[:amount], :order_id => @payment_response.attributes[:order_id], :payment_method_id => 200123)
+    @payment = Spree::Payment.new(
+      :amount => @payment_response.attributes[:amount], 
+      :order_id => @payment_response.attributes[:order_id], 
+      :payment_method_id => 200123
+    )
     @payment.id = 1234
 
     Spree::Payment.stub(:new).and_return(@payment)
@@ -76,10 +80,6 @@ describe Spree::OmnikassaPaymentsController do
         before :each do
           Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:success)
         end
-        it 'should set payment state to pending' do
-          @payment.should_receive("pend")
-          post :homecoming, @params
-        end
         it 'should set a flash' do
           post :homecoming, @params
           flash[:info].should_not be_nil
@@ -88,8 +88,10 @@ describe Spree::OmnikassaPaymentsController do
       end
     end
 
-    it 'should add a payment to order if not exists' do
-      Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
+    it 'should remove order_id from session' do
+      session[:order_id] = 123
+      post :homecoming, @params
+      session[:order_id].should be_nil
     end
   end
 
@@ -112,8 +114,8 @@ describe Spree::OmnikassaPaymentsController do
       end
 
       it 'should set payment state to completed' do
-        Spree::Payment.any_instance.should_receive(:complete)
         post :reply, @params
+        @payment.state.should == "completed"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -130,8 +132,8 @@ describe Spree::OmnikassaPaymentsController do
       end
 
       it 'should set payment state to pending' do
-        Spree::Payment.any_instance.should_receive(:pend)
         post :reply, @params
+        @payment.state == "pending"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -146,9 +148,9 @@ describe Spree::OmnikassaPaymentsController do
       before :each do
         Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:cancelled)
       end
-      it 'should set payment state to void' do
-        Spree::Payment.any_instance.should_receive(:void)
+      it 'should set payment state to failed' do
         post :reply, @params
+        @payment.state == "failed"
       end
       it 'should log the response with level :info' do
         Rails.logger.should_receive(:info).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -164,8 +166,8 @@ describe Spree::OmnikassaPaymentsController do
         Spree::OmnikassaPaymentResponse.any_instance.stub(:response_level).and_return(:failed)
       end
       it 'should set payment state to failed' do
-        Spree::Payment.any_instance.should_receive(:failure)
         post :reply, @params
+        @payment.state == "failed"
       end
       it 'should log the response with level :error' do
         Rails.logger.should_receive(:error).with( /OmnikassaPaymentResponse posted: payment: .*; params: .*/ )
@@ -178,22 +180,9 @@ describe Spree::OmnikassaPaymentsController do
     end
 
     it 'should add a payment to order if not exists' do
+      @payment.started_processing!
       Spree::OmnikassaPaymentsController.any_instance.should_receive(:add_payment_if_not_exists)
       post :reply, @params
-    end
-  end
-
-  describe "#add_payment_if_not_exists" do
-    it 'should add a payment to the order' do
-      Spree::Payment.should_receive(:create).with(any_args).and_return(@payment)
-      post :homecoming, @params
-    end
-
-    it 'should not add a payment when already added' do
-      @order.payments << mock_model(Spree::Payment).as_null_object
-      @order.save! # @INK: attempt to use an order with one payment associated already.
-      Spree::Payment.should_not_receive(:create)
-      post :homecoming, @params
     end
   end
 end
