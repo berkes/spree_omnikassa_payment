@@ -82,13 +82,10 @@ describe Spree::OmnikassaPaymentResponse do
       Spree::OmnikassaPaymentResponse.new(@seal, @data).payment
     end
     it 'should find Spree::Payment by order_id' do
-      stored_payment = Spree::Payment.new(@attrs)
-      stored_payment.stub(:update_order).and_return true
-      stored_payment.save
-
-      data = "orderId=#{stored_payment.order_id}"
-      res = Spree::OmnikassaPaymentResponse.new(@seal, data)
-      res.payment.should == stored_payment
+      Spree::Payment.stub(:find).and_return(@payment)
+      Spree::Payment.should_receive(:find)
+      res = Spree::OmnikassaPaymentResponse.new(@seal, @data)
+      res.payment.should == @payment
     end
     it 'should raise RecordNotFound if no payment is found' do
       Spree::Payment.stub(:find).and_return(nil)

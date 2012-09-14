@@ -17,7 +17,9 @@ describe Spree::OmnikassaPaymentsController do
 
     Spree::Order.stub(:create_user)
     Spree::Order.any_instance.stub(:payment_required?).and_return(true)
-    @order = Spree::Order.new(:email => "foo@example.com", :state => "delivery")
+    @order = Spree::Order.new()
+    @order.email = "foo@example.com"
+    @order.state = "delivery"
     @order.save!
 
     @data = "amount=24900|captureDay=0|captureMode=AUTHOR_CAPTURE|currencyCode=978|merchantId=002020000000001|orderId=#{@order.id}|transactionDateTime=2012-04-25T14:41:01+02:00|transactionReference=0020200000000011028|keyVersion=1|authorisationId=0020000006791167|paymentMeanBrand=IDEAL|paymentMeanType=CREDIT_TRANSFER|responseCode=00"
@@ -30,11 +32,10 @@ describe Spree::OmnikassaPaymentsController do
       "Seal"              => @seal
     }
     @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
-    @payment = Spree::Payment.new(
-      :amount => @payment_response.attributes[:amount], 
-      :order_id => @payment_response.attributes[:order_id], 
-      :payment_method_id => 200123
-    )
+    @payment = Spree::Payment.new()
+    @payment.amount = @payment_response.attributes[:amount], 
+    @payment.order_id = @payment_response.attributes[:order_id], 
+    @payment.payment_method_id = 200123
     @payment.id = 1234
 
     Spree::Payment.stub(:new).and_return(@payment)
