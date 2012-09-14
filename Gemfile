@@ -5,7 +5,6 @@ group :test do
   gem 'autotest'
   gem 'autotest-rails'
   gem 'autotest-notification'
-  gem 'spree_auth'
   gem 'ffaker'
 end
 
