@@ -6,6 +6,8 @@ group :test do
   gem 'autotest-rails'
   gem 'autotest-notification'
   gem 'ffaker'
+
+  gem 'spree_auth_devise', :git => "git://github.com/spree/spree_auth_devise"
 end
 
 if RUBY_VERSION < "1.9"
