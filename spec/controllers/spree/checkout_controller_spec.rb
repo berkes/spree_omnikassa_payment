@@ -8,6 +8,9 @@ describe Spree::CheckoutController do
     @pm.preferred_key_version = @key_version
     @pm.preferred_secret_key = @secret_key
     @routes = Spree::Core::Engine.routes  # render_views
+
+    @user = mock_model(Spree::User).as_null_object
+
   end
   let(:order) { mock_model(Spree::Order,
                            :checkout_allowed? => true,
@@ -19,7 +22,7 @@ describe Spree::CheckoutController do
                            :state => "payment",
                            :total => BigDecimal("123.45"),
                            :payments => []).as_null_object }
-  before { controller.stub :current_order => order, :current_user => Spree::User.anonymous! }
+  before { controller.stub :current_order => order, :current_user => @user }
 
   it 'should show omnikassa form on payment' do
     get :edit, {:state => 'payment'}
