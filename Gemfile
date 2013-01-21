@@ -1,12 +1,11 @@
-source 'http://rubygems.org'
+source :rubygems
 
 group :test do
+  gem 'rspec-rails', '~> 2.12.2'
   gem 'spork'
-  gem 'autotest'
-  gem 'autotest-rails'
-  gem 'autotest-notification'
-  gem 'spree_auth'
+  gem 'factory_girl', '~> 2'
   gem 'ffaker'
+  gem 'sqlite3'
 end
 
 if RUBY_VERSION < "1.9"
