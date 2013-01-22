@@ -32,9 +32,9 @@ describe Spree::OmnikassaPaymentsController do
     @payment_response = Spree::OmnikassaPaymentResponse.new(@params['Seal'], @params['Data'])
     @payment = Spree::Payment.new(
       :amount => @payment_response.attributes[:amount], 
-      :order_id => @payment_response.attributes[:order_id], 
       :payment_method_id => 200123
     )
+    @payment.order_id = @payment_response.attributes[:order_id]
     @payment.id = 1234
 
     Spree::Payment.stub(:new).and_return(@payment)
