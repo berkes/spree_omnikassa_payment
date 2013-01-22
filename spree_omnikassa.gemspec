@@ -11,8 +11,8 @@ Gem::Specification.new do |s|
   s.email             = 'ber@webschuur.com'
   s.homepage          = 'http://berk.es'
 
-  #s.files         = `git ls-files`.split("\n")
-  #s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.files         = `git ls-files`.split("\n")
+  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_path = 'lib'
 
   s.add_dependency 'spree', '~> 1.0.6'
