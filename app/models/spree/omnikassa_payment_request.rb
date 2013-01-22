@@ -75,7 +75,7 @@ module Spree
     end
 
     def return_url_for_action action
-      url_for(:controller => 'spree/omnikassa_payments', :action => action, :host => Spree::Config.preferred_site_url)
+      url_for(:protocol => "https", :controller => 'spree/omnikassa_payments', :action => action, :host => Spree::Config.preferred_site_url)
     end
 
     def transaction_reference

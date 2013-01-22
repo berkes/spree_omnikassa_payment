@@ -42,8 +42,8 @@ describe Spree::OmnikassaPaymentRequest do
     it 'should include a numeric merchantId' do
       @request.data.should =~ name_value_pair_re('merchantId', @merchant_id)
     end
-    it 'should include a normalReturnUrl' do
-      @request.data.should =~ name_value_pair_re('normalReturnUrl', 'http:\/\/*')
+    it 'should include a normalReturnUrl over https' do
+      @request.data.should =~ name_value_pair_re('normalReturnUrl', 'https:\/\/*')
     end
     it 'should include a order_id' do
       @request.data.should =~ name_value_pair_re('orderId', '123')
@@ -51,12 +51,12 @@ describe Spree::OmnikassaPaymentRequest do
     it 'should have the full url to "OmnikassaPaymentsController#homecoming", with "preferred_site_url" as base, as normalReturnUrl' do
       # @TODO find out how to include url_helpers here.
       # url_for(:controller => 'omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url))
-      @request.data.should =~ name_value_pair_re('normalReturnUrl', "http://#{Spree::Config.preferred_site_url}/omnikassa_payments/homecoming")
+      @request.data.should =~ name_value_pair_re('normalReturnUrl', "https://#{Spree::Config.preferred_site_url}/omnikassa_payments/homecoming")
     end
     it 'should have the full url to "OmnikassaPaymentsController#reply", with "preferred_site_url" as base, as normalReturnUrl' do
       # @TODO find out how to include url_helpers here.
       # url_for(:controller => 'omnikassa_payments', :action => 'homecoming', :host => Spree::Config.preferred_site_url))
-      @request.data.should =~ name_value_pair_re('automaticResponseUrl', "http://#{Spree::Config.preferred_site_url}/omnikassa_payments/reply")
+      @request.data.should =~ name_value_pair_re('automaticResponseUrl', "https://#{Spree::Config.preferred_site_url}/omnikassa_payments/reply")
     end
     it 'should return amount as price in cents' do
       @request.data.should =~ name_value_pair_re('amount', '1299')
