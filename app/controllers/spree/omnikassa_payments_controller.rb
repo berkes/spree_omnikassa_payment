@@ -76,12 +76,15 @@ module Spree
     # Allows both homecoming and reply to create a payment, but avoids having two payments.
     def add_payment_if_not_exists
       if @order.payments.empty?
-        Spree::Payment.create(
-          :order => @order,
-          :source => @payment_response.payment_method,
+        p = Spree::Payment.new(
           :payment_method => Spree::PaymentMethod::Omnikassa.fetch_payment_method,
-          :amount => @order.total,
-          :response_code => @payment_response.attributes[:response_code]).started_processing!
+          :amount         => @order.total)
+
+        p.response_code = @payment_response.attributes[:response_code]
+        p.source        = @payment_response.payment_method
+        p.order_id      = @order.id
+        p.save!
+        p.started_processing!
       end
     end
 
