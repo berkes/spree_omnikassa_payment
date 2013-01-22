@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_omnikassa'
-  s.version     = '0.4.2'
+  s.version     = '0.5.0'
   s.summary     = 'Omnikassa offiste payments for Spree'
   s.description = 'Offsite payments using the Dutch Omnikassa service from Rabobank.'
   s.required_ruby_version = '>= 1.8.7'
