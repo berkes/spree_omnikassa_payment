@@ -75,7 +75,14 @@ module Spree
     end
 
     def return_url_for_action action
-      url_for(:protocol => "https", :controller => 'spree/omnikassa_payments', :action => action, :host => Spree::Config.preferred_site_url)
+      url_properties = {
+        :controller => 'spree/omnikassa_payments',
+        :action => action,
+        :host => Spree::Config.preferred_site_url
+      }
+      url_properties[:protocol] = "https" unless Rails.env == "development"
+
+      url_for(url_properties)
     end
 
     def transaction_reference
