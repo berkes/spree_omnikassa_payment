@@ -1,6 +1,8 @@
 SpreeOmnikassa
 ==============
 
+For a Spree omnikassa that supports Spree ~2.x, please see [https://github.com/Willianvdv/spree_omnikassa](Willianvdv's repo).
+
 A [Spree payment method](http://guides.spreecommerce.com/payment_gateways.html) for the [Dutch Rabobank Omnikassa](http://www.rabobank.nl/bedrijven/producten/betalen_en_ontvangen/geld_ontvangen/rabo_omnikassa/). 
 
 It was developed for [Anna Treurniet](http://annatreurniet.nl) and
